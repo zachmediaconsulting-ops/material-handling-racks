@@ -229,11 +229,11 @@ ul { margin: 0 0 .9rem; }
 .lists-intro { color: var(--white); font-size: 24px; line-height: 1.5; text-align: center; padding: 40px 20px; }
 .lists-intro p { width: 80%; max-width: 880px; margin: 0 auto; }
 .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1110px; margin: 0 auto; }
-.list-card { background: var(--white); border-radius: var(--radius); padding: 20px 10px 0; }
-.list-card__title { background: var(--red); color: var(--white); border-radius: var(--radius) var(--radius) 0 0; padding: 20px 10px; text-align: center;
+.list-card { background: var(--white); border-radius: var(--radius); overflow: hidden; }
+.list-card__title { background: var(--red); color: var(--white); padding: 20px; text-align: center;
   font-size: 36px; line-height: 1; font-weight: 600; margin-bottom: 20px; }
-.list-card h3 { padding: 0 10px; margin-bottom: 10px; }
-.list-card ul { padding: 20px 10px 40px 70px; margin: 0 0 20px; }
+.list-card h3 { padding: 0 20px; margin-bottom: 10px; }
+.list-card ul { padding: 20px 20px 40px 80px; margin: 0 0 20px; }
 .list-card ul:last-child { margin-bottom: 0; }
 .list-card a { color: var(--text); text-decoration-color: rgba(223, 14, 27, .5); text-underline-offset: 3px; }
 .list-card a:hover { color: var(--red); }
