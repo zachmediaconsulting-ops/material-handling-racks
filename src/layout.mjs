@@ -5,15 +5,30 @@ import { contactCard } from './components.mjs';
 
 const isCurrent = (href, path) => href === path;
 
+// Photo shown on the left of each desktop mega menu.
+const MEGA_IMAGE = {
+  capabilities: 'welding', carts: 'blue-rack-and-orange-cart', racks: 'large-blue-shipping-rack',
+  fabrication: 'repaired-racks-ready-to-ship', industries: 'forklift-moving-assembly-rack', company: 'yellow-automotive-handling-racks',
+};
+
+// Desktop: each section opens a full-width mega menu under the header.
+// Phones: the same markup becomes an expandable list inside the hamburger menu.
 function navMenu(groups, path) {
   return groups.map((g) => {
     const inGroup = g.href === path || g.items.some((i) => i.href === path);
     const subId = `sub-${g.key}`;
-    const items = [{ label: g.allLabel || `All ${g.label}`, href: g.href, all: true }, ...g.items.filter((i) => i.href !== g.href)];
+    const allLabel = g.allLabel || `All ${g.label}`;
+    const items = [{ label: allLabel, href: g.href, all: true }, ...g.items.filter((i) => i.href !== g.href)];
     return `<li${inGroup ? ' class="is-current"' : ''}>
       <a class="menu__link" href="${g.href}"${isCurrent(g.href, path) ? ' aria-current="page"' : ''}>${esc(g.label)}</a>
       <button class="menu__sub-toggle" type="button" aria-expanded="false" aria-controls="${subId}" aria-label="Show ${esc(g.label)} pages">${icon('caret')}</button>
-      <ul class="submenu${g.items.length > 8 ? ' submenu--cols' : ''}" id="${subId}">${items.map((i) => `<li${i.all ? ' class="submenu__all"' : ''}><a href="${i.href}"${isCurrent(i.href, path) ? ' aria-current="page"' : ''}>${esc(i.label)}</a></li>`).join('')}</ul>
+      <div class="mega" id="${subId}">
+        <div class="mega__media" data-bg="/images/${MEGA_IMAGE[g.key]}-800.webp" aria-hidden="true"></div>
+        <div class="mega__body">
+          <a class="mega__title" href="${g.href}"${isCurrent(g.href, path) ? ' aria-current="page"' : ''}>${esc(allLabel)} <span aria-hidden="true">›</span></a>
+          <ul class="submenu">${items.map((i) => `<li${i.all ? ' class="submenu__all"' : ''}><a href="${i.href}"${isCurrent(i.href, path) ? ' aria-current="page"' : ''}>${esc(i.label)}</a></li>`).join('')}</ul>
+        </div>
+      </div>
     </li>`;
   }).join('');
 }

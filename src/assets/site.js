@@ -33,6 +33,15 @@ if (toggle && panel) {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { toggle.click(); toggle.focus(); } });
 }
 
+// ---- Desktop mega menus: load their photos the first time someone uses the menu ----
+const menu = document.querySelector('.header .menu');
+const loadMegaPhotos = () => document.querySelectorAll('.mega__media[data-bg]').forEach((el) => {
+  el.style.backgroundImage = `url(${el.dataset.bg})`;
+  el.removeAttribute('data-bg');
+});
+menu?.addEventListener('pointerenter', loadMegaPhotos, { once: true });
+menu?.addEventListener('focusin', loadMegaPhotos, { once: true });
+
 // ---- Hero background slideshow: fade between photos every 5 seconds ----
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.querySelectorAll('.hero__slides').forEach((slides) => {
