@@ -19,7 +19,8 @@ async function scrollThrough(page) {
     await page.evaluate((y) => window.scrollTo(0, y), y);
     await page.waitForTimeout(50);
   }
-  await page.waitForFunction(() => [...document.images].every((img) => img.complete));
+  // Images hidden on this screen size (e.g. the phone-only Call Now button on desktop) are lazy and never load.
+  await page.waitForFunction(() => [...document.images].every((img) => img.complete || img.getClientRects().length === 0));
 }
 
 // Scroll an element to the middle of the screen and click it (desktop) or tap it with a finger (mobile).
@@ -48,6 +49,26 @@ for (const path of PAGES) {
       await scrollThrough(page);
       expect(failed).toEqual([]);
       expect(errors).toEqual([]);
+    });
+
+    test('loads nothing from other websites except the YouTube video and Google Map', async ({ page }) => {
+      const external = [];
+      page.on('request', (r) => {
+        const { hostname } = new URL(r.url());
+        if (!['localhost', 'www.youtube.com', 'maps.google.com'].includes(hostname) && !r.url().startsWith('data:')) external.push(r.url());
+      });
+      await page.goto(path, { waitUntil: 'networkidle' });
+      await scrollThrough(page);
+      expect(external).toEqual([]); // e.g. nothing from the old WordPress site, which will be shut down
+    });
+
+    test('page does not slide sideways', async ({ page }) => {
+      await page.goto(path, { waitUntil: 'networkidle' });
+      await scrollThrough(page);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
     });
 
     test('all images load', async ({ page }) => {
