@@ -1,0 +1,13 @@
+{
+  "name": "material-handling-racks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && node scripts/serve.mjs",
+    "test": "npm run build && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
