@@ -1,0 +1,212 @@
+{
+ "american-flag": {
+  "width": 1600,
+  "height": 900,
+  "small": true
+ },
+ "assembly-rack-on-tugger-cart": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "automation-cart-detail": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "automation-pin-cart": {
+  "width": 576,
+  "height": 1024,
+  "small": false
+ },
+ "automotive-hood-rack": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "automotive-panel-assembly-rack": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "blue-automation-carts-2": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "blue-automation-carts-3": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "blue-automation-carts": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "blue-automotive-material-racks": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "blue-cart-orange-base": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "blue-rack-and-orange-cart": {
+  "width": 1200,
+  "height": 900,
+  "small": true
+ },
+ "blue-rack-cart": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "call-now": {
+  "width": 562,
+  "height": 164,
+  "small": false
+ },
+ "cart-locator-detail": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "curtained-parts-carts": {
+  "width": 1600,
+  "height": 768,
+  "small": true
+ },
+ "enclosed-parts-cart": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "exhaust-part-rack": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "forklift-moving-assembly-rack": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "green-part-hangers": {
+  "width": 576,
+  "height": 1024,
+  "small": false
+ },
+ "large-blue-shipping-rack": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "multi-level-assembly-rack": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "orange-parts-carts": {
+  "width": 576,
+  "height": 1024,
+  "small": false
+ },
+ "orange-tugger-cart-frame": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "painted-rack-base": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "painted-rack-mesh-decks": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "rack-changeover-hood": {
+  "width": 1600,
+  "height": 1200,
+  "small": true
+ },
+ "rack-repair-after": {
+  "width": 1200,
+  "height": 900,
+  "small": true
+ },
+ "rack-repair-before": {
+  "width": 1200,
+  "height": 900,
+  "small": true
+ },
+ "repaired-material-handling-rack": {
+  "width": 1600,
+  "height": 1200,
+  "small": true
+ },
+ "repaired-racks-ready-to-ship": {
+  "width": 1600,
+  "height": 1200,
+  "small": true
+ },
+ "rivers-logo": {
+  "width": 1301,
+  "height": 245,
+  "small": true
+ },
+ "stackable-steel-container": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "stacked-blue-assembly-racks": {
+  "width": 768,
+  "height": 1024,
+  "small": false
+ },
+ "stacked-steel-containers": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "steel-container-with-dunnage": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ },
+ "tugger-cart-hitch": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "welded-steel-frame": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "welding": {
+  "width": 1600,
+  "height": 768,
+  "small": true
+ },
+ "yellow-automation-carts": {
+  "width": 800,
+  "height": 600,
+  "small": false
+ },
+ "yellow-automotive-handling-racks": {
+  "width": 1600,
+  "height": 768,
+  "small": true
+ },
+ "yellow-industrial-material-racks": {
+  "width": 1024,
+  "height": 768,
+  "small": true
+ }
+}

@@ -1,0 +1,185 @@
+// COMPANY / SUPPORTING PAGES.
+// Only facts already published on the original site are used. Pages that need information
+// we don't have are marked noindex (kept out of Google and the sitemap) and flagged for review.
+import { S } from './helpers.mjs';
+import { SITE } from '../site.mjs';
+
+const co = (p) => ({ template: 'prosePage', group: 'company', ...p });
+
+export const hub = co({
+  path: '/about/', label: 'About',
+  title: 'About Rivers Industrial Racks | Owosso, Michigan',
+  description: 'Rivers is a Michigan fabrication company that designs, builds, repairs, and reworks American-made material handling racks and carts for manufacturers nationwide.',
+  h1: 'About Rivers Industrial Racks', kicker: 'American-made industrial racks & carts.',
+  image: 'repaired-racks-ready-to-ship', slides: ['repaired-racks-ready-to-ship', 'welding'],
+  summary: 'A Michigan fabrication company building and restoring American-made racks and carts.',
+  band: SITE.quote,
+  intro: {
+    heading: 'Who We Are',
+    text: [
+      'Rivers designs, manufactures, repairs, and reworks custom material handling racks, carts, and transport systems for automotive, assembly, and industrial applications throughout Michigan and beyond.',
+      'Our shop is located in Owosso, Michigan. Our racks and carts are made in America, and we deliver nationwide. Our team brings over 32 years of industry experience to every project.',
+    ],
+    image: ['welding', 'Welding at the Rivers fabrication shop'],
+  },
+  sections: [
+    { heading: 'What We Do', text: ['We work across the full life of material handling equipment:'], list: [
+      '<a href="/racks/">Custom racks</a> and <a href="/carts/">carts</a> designed and built around your parts',
+      '<a href="/rack-repair/">Rack repair</a> and <a href="/fabrication/rack-fleet-refurbishment/">fleet refurbishment</a> that extend service life',
+      '<a href="/rack-changeovers-reworks/">Changeovers and reworks</a> that adapt existing racks for new parts and programs',
+      '<a href="/capabilities/dunnage/">Custom dunnage</a> and fixtures that protect parts and present them consistently',
+    ] },
+    { heading: 'How We Work', text: ['When you need quality, accuracy, and experience, call Rivers. Every project starts with understanding your part, your process, and how your equipment is used, whether you need a single custom prototype or a full production run.', 'Learn more about <a href="/about/our-value/">the value we deliver</a>, or <a href="/contact/">contact us</a> to talk through a project.'] },
+  ],
+  related: ['/about/our-value/', '/capabilities/', '/gallery/', '/contact/'],
+  relatedHeading: 'Learn More About Rivers',
+});
+
+export const pages = [
+  co({
+    path: '/about/our-value/', label: 'Our Value', breadcrumbs: [S.about],
+    title: 'The Value of Repair, Rework & Custom Racks | Rivers',
+    description: 'How Rivers helps manufacturers lower material handling costs: repairing and reworking racks instead of replacing them, and building custom racks that protect parts.',
+    h1: 'The Value We Deliver', kicker: 'Lower cost of ownership for your rack fleet.',
+    image: 'rack-repair-after', slides: ['rack-repair-before', 'rack-repair-after'],
+    summary: 'How repair, rework, and well-built racks lower your total cost.',
+    band: 'The value of a rack isn’t its purchase price. It’s how many parts it protects and how many years it stays in service.',
+    sections: [
+      { heading: 'Repair Before Replace', text: ['Material handling racks take abuse. Instead of automatically replacing existing racks, we can inspect, repair, reinforce, and restore them for continued use. Extending the life of your rack fleet reduces replacement costs and keeps production moving. See <a href="/rack-repair/">rack repair</a> and <a href="/fabrication/rack-fleet-refurbishment/">fleet refurbishment</a>.'] },
+      { heading: 'Rework Instead of Scrap', text: ['Manufacturing programs change, and your racks should be able to change with them. Rather than scrapping an entire fleet of material handling racks, we can modify and rework existing racks for a new part or program. See <a href="/rack-changeovers-reworks/">rack changeovers and reworks</a>.'] },
+      { heading: 'Racks Built Around Your Part', text: ['Every custom solution is built around the way your parts need to be stored, moved, protected, and presented. Racks that protect parts reduce damage, and racks that are easy to load save time on every cycle. See <a href="/racks/">custom racks</a> and <a href="/capabilities/dunnage/">custom dunnage</a>.'] },
+      { heading: 'Business Built on a Handshake', text: [SITE.quote, 'We believe in clear communication, honest recommendations, including telling you when repair makes more sense than new, and standing behind the quality of our work.'] },
+    ],
+    related: ['/rack-repair/', '/rack-changeovers-reworks/', '/fabrication/rack-fleet-refurbishment/', '/racks/'],
+  }),
+  co({
+    path: '/about/our-team/', label: 'Our Team', breadcrumbs: [S.about], noindex: true,
+    review: 'PLACEHOLDER (noindex): add team member names, roles, photos, and bios. Nothing about the team was invented.',
+    title: 'Our Team | Rivers Industrial Racks',
+    description: 'Meet the people behind Rivers Industrial Racks in Owosso, Michigan.',
+    h1: 'Our Team', kicker: 'The people behind the racks.',
+    image: 'welding', summary: 'The people behind Rivers Industrial Racks.',
+    band: 'Our team brings over 32 years of industry experience to material handling design, fabrication, repair, and rework.',
+    sections: [
+      { heading: 'Meet the Team', text: ['Team profiles are coming soon. In the meantime, the fastest way to reach us is by phone at <a href="' + SITE.phoneHref + '">' + SITE.phone + '</a>, ' + SITE.hours + '.'] },
+    ],
+    related: ['/about/', '/careers/', '/contact/'],
+  }),
+  co({
+    path: '/careers/', label: 'Careers', noindex: true,
+    review: 'PLACEHOLDER (noindex): add open positions, benefits, and how to apply. No job openings were invented.',
+    title: 'Careers at Rivers Industrial Racks | Owosso, MI',
+    description: 'Interested in fabrication and welding work at Rivers Industrial Racks in Owosso, Michigan? Learn how to get in touch.',
+    h1: 'Careers at Rivers', kicker: 'Build things that keep manufacturing moving.',
+    image: 'welded-steel-frame', summary: 'Working at Rivers Industrial Racks in Owosso, Michigan.',
+    band: 'Rivers builds and restores American-made industrial racks and carts in Owosso, Michigan.',
+    sections: [
+      { heading: 'Current Openings', text: ['There are no positions listed at this time.'], note: `Interested in working with us? Call <a href="${SITE.phoneHref}">${SITE.phone}</a> or stop by ${SITE.address.street}, ${SITE.address.city}, ${SITE.address.region}.` },
+    ],
+    related: ['/about/', '/capabilities/fabrication-welding/', '/contact/'],
+  }),
+  co({
+    path: '/news/', label: 'News', noindex: true,
+    review: 'PLACEHOLDER (noindex): no news posts exist yet. Add posts (project spotlights, announcements) before indexing.',
+    title: 'News & Updates | Rivers Industrial Racks',
+    description: 'News, project spotlights, and updates from Rivers Industrial Racks.',
+    h1: 'News & Updates', kicker: 'Projects, announcements, and updates.',
+    image: 'yellow-automotive-handling-racks', summary: 'Project spotlights and company updates.',
+    band: 'News and project spotlights will be posted here.',
+    sections: [{ heading: 'Coming Soon', text: ['There are no news posts yet. See recent work in our <a href="/gallery/">project gallery</a>.'] }],
+    related: ['/gallery/', '/about/', '/contact/'],
+  }),
+  co({
+    path: '/government/', label: 'Government', noindex: true,
+    review: 'PLACEHOLDER (noindex): add government contracting details only if they apply (registrations, codes, contract vehicles). None were invented.',
+    title: 'Government & Public Sector Inquiries | Rivers Industrial Racks',
+    description: 'Government and public sector buyers: contact Rivers Industrial Racks about custom material handling racks, carts, repair, and fabrication.',
+    h1: 'Government & Public Sector', kicker: 'American-made material handling equipment.',
+    image: 'large-blue-shipping-rack', summary: 'Information for government and public sector buyers.',
+    band: 'Rivers builds American-made industrial racks and carts in Owosso, Michigan.',
+    sections: [
+      { heading: 'Public Sector Inquiries', text: ['Government and public sector buyers can contact us about custom racks, carts, repair, and fabrication projects.'], note: `For procurement questions, call <a href="${SITE.phoneHref}">${SITE.phone}</a> or use our <a href="/request-a-quote/">quote request form</a>.` },
+    ],
+    related: ['/racks/', '/carts/', '/request-a-quote/'],
+  }),
+  co({
+    path: '/suppliers/', label: 'Suppliers', noindex: true,
+    review: 'PLACEHOLDER (noindex): add supplier requirements or a vendor contact if you want this page. Nothing was invented.',
+    title: 'Supplier Information | Rivers Industrial Racks',
+    description: 'Information for companies interested in supplying materials and components to Rivers Industrial Racks.',
+    h1: 'Supplier Information', kicker: 'Materials and components for American-made racks.',
+    image: 'stacked-steel-containers', summary: 'Information for companies interested in supplying Rivers.',
+    band: 'We build material handling racks and carts from steel and purchased components such as casters and hardware.',
+    sections: [
+      { heading: 'Becoming a Supplier', text: ['Companies interested in supplying materials or components can contact us.'], note: `Call <a href="${SITE.phoneHref}">${SITE.phone}</a>, ${SITE.hours}.` },
+    ],
+    related: ['/about/', '/contact/', '/capabilities/'],
+  }),
+  co({
+    path: '/container-study/', label: 'Container Study', schema: 'Service',
+    review: 'UNVERIFIED: confirm you offer packaging/container studies as a service and that the steps below match your process.',
+    title: 'Container Study: Plan Racks & Packaging for Your Part | Rivers',
+    description: 'A container study reviews your part, packaging, and handling to recommend the right rack, container, or dunnage before you commit to a fleet.',
+    h1: 'Container & Packaging Study', kicker: 'Get the packaging right before you build the fleet.',
+    image: 'steel-container-with-dunnage', slides: ['steel-container-with-dunnage', 'stacked-steel-containers'],
+    summary: 'A review of your part and handling to recommend the right rack or container.',
+    band: 'The most expensive packaging mistake is building a whole fleet around the wrong design. A container study looks at the part, the process, and the route first.',
+    intro: {
+      heading: 'What a Container Study Is',
+      text: [
+        'A container study is a structured look at how a part should be packaged and handled. It considers the part itself, how it is produced and used, how it travels, and what equipment handles it. The goal is a clear recommendation: a <a href="/racks/">custom rack</a>, a <a href="/carts/parts-bins-rigid-containers/">rigid container</a>, a <a href="/carts/">cart</a>, new <a href="/capabilities/dunnage/">dunnage</a>, or a <a href="/rack-changeovers-reworks/">rework of existing racks</a>.',
+        'For new programs, a study can lead into <a href="/capabilities/prototyping/">prototyping</a>. For existing programs, it can show whether current racks can be reused.',
+      ],
+      image: ['steel-container-with-dunnage', 'Steel container with part dunnage'],
+    },
+    sections: [
+      { heading: 'What We Look At', list: [
+        'The part: size, weight, shape, protected surfaces, and how it can be held',
+        'Production and use: how parts are loaded, picked, and presented at the line or to automation',
+        'Handling and transport: forklifts, tuggers, conveyors, trucks, stacking, and storage',
+        'Volumes: how many parts per rack, how many racks, and how often they cycle',
+        'Existing equipment: whether current racks or containers can be repaired or reworked',
+      ] },
+      { heading: 'What You Get', text: ['A recommendation for the packaging approach, along with the options and trade-offs, so your team can decide with confidence. From there we can design, prototype, and build, or rework what you already have.'] },
+      { heading: 'What to Send Us', text: ['Part drawings or CAD files, photos of the part and any current packaging, expected volumes, and how the part is handled at both ends. Use the <a href="/request-a-quote/">quote request form</a> to upload files.'] },
+    ],
+    related: ['/capabilities/engineering-design/', '/capabilities/prototyping/', '/capabilities/dunnage/', '/carts/parts-bins-rigid-containers/'],
+  }),
+  {
+    path: '/gallery/', template: 'galleryPage', group: 'company', label: 'Gallery',
+    title: 'Rack & Cart Project Gallery | Rivers Industrial Racks',
+    description: 'Photos of custom material handling racks, carts, dunnage, rack repairs, and changeovers built by Rivers for automotive, assembly, and industrial customers.',
+    h1: 'Project Gallery', kicker: 'Custom racks, carts, repairs, and reworks.',
+    image: 'stacked-blue-assembly-racks', slides: ['stacked-blue-assembly-racks', 'yellow-automotive-handling-racks'],
+    summary: 'Photos of custom racks, carts, dunnage, repairs, and changeovers.',
+    band: 'Each project is designed around the specific part, process, and handling requirements of the application.',
+    galleryHeading: 'Racks, Carts & Repairs',
+    text: ['Explore examples of custom material handling racks, automotive part racks, shipping frames, WIP systems, and specialized fixtures built for demanding manufacturing environments.', 'From protecting automotive components in transit to improving line-side presentation, storage, and movement throughout the plant, these photos show the range of custom solutions we build and restore.'],
+    related: ['/racks/', '/carts/', '/rack-repair/', '/rack-changeovers-reworks/', '/capabilities/dunnage/', '/industries/automotive/'],
+  },
+  {
+    path: '/contact/', template: 'contactPage', group: 'company', label: 'Contact',
+    title: 'Contact Rivers Industrial Racks | Owosso, MI | 1-989-600-9030',
+    description: 'Contact Rivers Industrial Racks in Owosso, Michigan about custom racks, carts, rack repair, and changeovers. Call 1-989-600-9030 or send your project details.',
+    h1: 'Contact Rivers', kicker: 'Call, visit, or send us your project details.',
+    image: 'forklift-moving-assembly-rack', slides: ['forklift-moving-assembly-rack'],
+    summary: 'Phone, address, hours, and a form to send project details.',
+    band: 'Have a new rack project, repair, changeover, or rework requirement? Tell us what you’re working on and our team will review the application.',
+    text: ['We deliver nationwide from our shop in Owosso, Michigan.', 'For a detailed estimate with drawings or CAD files, use the <a href="/request-a-quote/">request a quote</a> page.'],
+    related: ['/request-a-quote/', '/rack-repair/', '/racks/', '/carts/'],
+  },
+  {
+    path: '/request-a-quote/', template: 'quotePage', group: 'company', label: 'Request a Quote',
+    title: 'Request a Quote for Racks, Carts or Rack Repair | Rivers',
+    description: 'Request a quote for custom material handling racks, carts, dunnage, rack repair, refurbishment, or changeovers. Upload drawings, CAD files, or photos.',
+    h1: 'Request a Quote', kicker: 'Send us the details. We’ll review the application.',
+    image: 'blue-rack-and-orange-cart', slides: ['blue-rack-and-orange-cart', 'repaired-racks-ready-to-ship'],
+    summary: 'Send drawings, photos, and project details for a quote.',
+    band: 'Whether you need new racks, modifications to an existing fleet, or repairs to equipment already in service, send us the details and we’ll help determine the best path forward.',
+    formHeading: 'Tell Us About Your Project',
+    text: ['Fill out the form with as much information as possible. Helpful details include:'],
+    checklist: ['What you need: new racks or carts, repair, refurbishment, a changeover, or dunnage', 'Part information: drawings, CAD files, photos, size, and weight', 'Quantities: number of racks or carts, or number of racks needing repair', 'Timing: when you need equipment in service, including launch dates', 'Handling: forklift, tugger, stacking, shipping, or automation requirements'],
+    after: ['<strong>Have drawings, prints, photos, CAD files, or existing rack designs?</strong> Submit them with your request so we can better understand the project and provide the right solution.', `Prefer to talk it through? Call <a href="${SITE.phoneHref}">${SITE.phone}</a>, ${SITE.hours}.`],
+    related: ['/container-study/', '/fabrication/repair-refurbishing-modification/', '/racks/', '/carts/'],
+  },
+];

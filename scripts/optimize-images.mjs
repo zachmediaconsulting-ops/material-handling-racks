@@ -1,40 +1,49 @@
-// Creates a compressed .webp next to every .jpg/.jpeg/.png in public/wp-content/uploads
-// (and public/images, for new images). The build then serves the .webp wherever the page
-// references the original. Originals stay in place so old image URLs keep working.
+// Turns the originals in source-images/ into web-ready files in public/images/:
+//   name.webp      up to 1600px wide (desktop)
+//   name-800.webp  up to 800px wide (phones, cards, galleries)
+// and writes src/images.json with each image's size (used for width/height attributes).
+// Also makes the favicons. Skips images that are already up to date.
 //
-//   npm run images            only converts images that have no .webp yet (or changed since)
-//
-// Photos are capped at 2048px on the long side: the widest the site shows them is 1440 CSS px
-// (full-width backgrounds), and they sit under a coloured overlay.
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+//   npm run images
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, parse } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const dirs = ['public/wp-content/uploads', 'public/images'].map((d) => join(root, d)).filter(existsSync);
-const MAX = 2048;
-// Icons that browsers and phones expect as PNG.
-const SKIP = /Favicon/i;
+const src = join(root, 'source-images');
+const out = join(root, 'public/images');
+mkdirSync(out, { recursive: true });
 
-const walk = (dir) => readdirSync(dir).flatMap((f) => {
-  const p = join(dir, f);
-  return statSync(p).isDirectory() ? walk(p) : [p];
-});
+const fresh = (target, source) => existsSync(target) && statSync(target).mtimeMs >= statSync(source).mtimeMs;
+const manifest = {};
+let made = 0;
 
-let converted = 0; let before = 0; let after = 0;
-for (const file of dirs.flatMap(walk)) {
-  if (!/\.(jpe?g|png)$/i.test(file) || SKIP.test(file)) continue;
-  const out = file.replace(/\.(jpe?g|png)$/i, '.webp');
-  if (existsSync(out) && statSync(out).mtimeMs >= statSync(file).mtimeMs) continue;
-  const isPng = /\.png$/i.test(file);
-  await sharp(file)
-    .rotate() // respect camera orientation
-    .resize({ width: MAX, height: MAX, fit: 'inside', withoutEnlargement: true })
-    .webp(isPng ? { quality: 90, alphaQuality: 100, effort: 6 } : { quality: 80, effort: 6 })
-    .toFile(out);
-  converted += 1; before += statSync(file).size; after += statSync(out).size;
+for (const file of readdirSync(src).sort()) {
+  const { name, ext } = parse(file);
+  if (!/^\.(jpe?g|png|webp)$/i.test(ext)) continue;
+  const input = join(src, file);
+
+  if (name === 'favicon') {
+    for (const [size, target] of [[32, 'favicon-32.png'], [192, 'favicon-192.png'], [180, 'apple-touch-icon.png']]) {
+      const path = join(root, 'public', target);
+      if (!fresh(path, input)) { await sharp(input).resize(size, size).png().toFile(path); made += 1; }
+    }
+    continue;
+  }
+
+  const meta = await sharp(input).rotate().metadata();
+  const graphic = /\.png$/i.test(ext);
+  const webp = graphic ? { quality: 90, alphaQuality: 100, effort: 6 } : { quality: 78, effort: 6 };
+  for (const [suffix, width] of [['', 1600], ['-800', 800]]) {
+    const path = join(out, `${name}${suffix}.webp`);
+    if (fresh(path, input)) continue;
+    await sharp(input).rotate().resize({ width, withoutEnlargement: true }).webp(webp).toFile(path);
+    made += 1;
+  }
+  const w = meta.autoOrient?.width ?? meta.width; const h = meta.autoOrient?.height ?? meta.height;
+  manifest[name] = { width: Math.min(w, 1600), height: Math.round(h * Math.min(w, 1600) / w), small: w > 800 };
 }
-console.log(converted
-  ? `Converted ${converted} images: ${(before / 1048576).toFixed(1)} MB -> ${(after / 1048576).toFixed(1)} MB`
-  : 'All images already optimized');
+
+writeFileSync(join(root, 'src/images.json'), JSON.stringify(manifest, null, 1) + '\n');
+console.log(`${made} image files written, ${Object.keys(manifest).length} images in src/images.json`);

@@ -1,107 +1,145 @@
-// Builds the static site into dist/.
-//  1. copies public/ as-is (images, fonts, CSS, JS)
-//  2. for every src/pages/**/*.html:
-//     - replaces <!-- @include name --> with src/partials/name.html
-//     - marks menu links that point at the current page as active (same markup WordPress emitted)
-//     - adds /assets/css/site.css after the Elementor styles and /assets/js/site.js at the end
-//     - combines the page's stylesheets, in order, into one cached file (one download instead of ~25)
-//     - points .jpg/.png images at their smaller .webp copy when one exists (npm run images)
-//     - lazy-loads images below the top of the page
+// Builds the whole site into dist/ and checks it.
+//   npm run build
+// Steps: render every page, copy public/, fingerprint CSS/JS, write sitemap.xml, robots.txt and
+// _redirects (old WordPress URLs), then fail the build on broken internal links, duplicate
+// URLs/titles/descriptions/H1s, or pages missing from the menu and footer.
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, posix, relative, sep } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SITE } from '../src/site.mjs';
+import { layout, organizationLd, breadcrumbLd } from '../src/layout.mjs';
+import { form } from '../src/components.mjs';
+import * as templates from '../src/templates.mjs';
+import * as home from '../src/pages/home.mjs';
+import * as rackRepair from '../src/pages/rack-repair.mjs';
+import { GROUPS, PAGES } from '../src/content/index.mjs';
+
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const pagesDir = join(root, 'src/pages');
-const partialsDir = join(root, 'src/partials');
-const publicDir = join(root, 'public');
 const dist = join(root, 'dist');
-
 rmSync(dist, { recursive: true, force: true });
-cpSync(publicDir, dist, { recursive: true });
+cpSync(join(root, 'public'), dist, { recursive: true });
 
-const walk = (dir) => readdirSync(dir).flatMap((f) => {
-  const p = join(dir, f);
-  return statSync(p).isDirectory() ? walk(p) : p.endsWith('.html') ? [p] : [];
-});
+// ---- assets: one CSS file (fonts + site) and one JS file, named by content hash for caching ----
+const fingerprint = (name, ext, content) => {
+  const file = `/assets/${name}.${createHash('sha256').update(content).digest('hex').slice(0, 10)}.${ext}`;
+  mkdirSync(join(dist, 'assets'), { recursive: true });
+  writeFileSync(join(dist, file), content);
+  return file;
+};
+const minifyCss = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{}:;,>])\s*/g, '$1').replace(/;}/g, '}').trim();
+const assets = {
+  css: fingerprint('site', 'css', minifyCss(readFileSync(join(root, 'src/assets/fonts.css'), 'utf8') + readFileSync(join(root, 'src/assets/site.css'), 'utf8'))),
+  js: fingerprint('site', 'js', readFileSync(join(root, 'src/assets/site.js'), 'utf8')),
+};
 
-const partial = (name) => readFileSync(join(partialsDir, `${name}.html`), 'utf8').trimEnd();
-
-// "index.html" -> "/", "rack-repair/index.html" -> "/rack-repair/"
-const urlFor = (file) => '/' + relative(pagesDir, file).split(sep).join('/').replace(/index\.html$/, '');
-
-function markActive(html, url) {
-  const href = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return html.replace(
-    new RegExp(`<li class="(menu-item[^"]*)"><a href="${href}" class="elementor-item"`, 'g'),
-    `<li class="$1 current-menu-item current_page_item"><a href="${url}" aria-current="page" class="elementor-item elementor-item-active"`,
-  );
+// ---- page registry ----
+const custom = [
+  { ...home.page, render: home.render },
+  { ...rackRepair.page, render: rackRepair.render },
+];
+const all = [...custom, ...PAGES];
+const byPath = new Map();
+for (const p of all) {
+  if (byPath.has(p.path)) throw new Error(`Duplicate route ${p.path}`);
+  if (!/^\/([a-z0-9]+(-[a-z0-9]+)*\/)*$/.test(p.path)) throw new Error(`Route is not a clean URL: ${p.path}`);
+  byPath.set(p.path, p);
 }
+const get = (path) => byPath.get(path) || (() => { throw new Error(`Link to unknown page ${path}`); })();
 
-// --- images: /path/photo.jpg -> /path/photo.webp when the .webp exists and is smaller -------------
-const webpCache = new Map();
-function webpFor(path) {
-  if (!webpCache.has(path)) {
-    const original = join(publicDir, path);
-    const webp = original.replace(/\.(jpe?g|png)$/i, '.webp');
-    webpCache.set(path, existsSync(original) && existsSync(webp) && statSync(webp).size < statSync(original).size
-      ? path.replace(/\.(jpe?g|png)$/i, '.webp') : path);
+// Menu groups: hub page + its pages, in the order listed in src/content/index.mjs.
+const groups = GROUPS.map((g) => ({ ...g, items: g.items.map((path) => ({ href: path, label: get(path).label })) }));
+
+const ctx = (page) => {
+  const crumbs = [{ label: 'Home', href: '/' }, ...(page.breadcrumbs || []), { label: page.label, href: page.path }];
+  return {
+    crumbs: page.path === '/' ? [] : crumbs,
+    labelFor: (path) => get(path).label,
+    cardFor: (path) => { const p = get(path); return { href: p.path, label: p.label, summary: p.summary, image: p.image }; },
+    children: (hub) => GROUPS.find((g) => g.href === hub.path).items.filter((path) => path !== hub.path && !(hub.childrenExclude || []).includes(path)),
+    form,
+  };
+};
+
+// ---- render ----
+const report = [];
+for (const page of all) {
+  const c = ctx(page);
+  const body = page.render ? page.render(c) : templates[page.template](page, c);
+  const jsonLd = [organizationLd()];
+  if (c.crumbs.length) jsonLd.push(breadcrumbLd(c.crumbs));
+  if (page.schema === 'Service') {
+    jsonLd.push({
+      '@context': 'https://schema.org', '@type': 'Service', name: page.h1 || page.label, serviceType: page.label,
+      description: page.description, url: SITE.url + page.path, provider: { '@id': `${SITE.url}/#business` },
+      areaServed: [{ '@type': 'State', name: 'Michigan' }, { '@type': 'Country', name: 'United States' }],
+    });
   }
-  return webpCache.get(path);
-}
-// Matches /wp-content/... or /images/... image paths, also inside JSON with escaped slashes (\/).
-const IMAGE_RE = /((?:\\?\/)(?:wp-content|images)(?:\\?\/)[^"'()\s,?]+?\.(?:jpe?g|png))(?=[?"'()\s,&]|$)/gi;
-const useWebp = (text) => text.replace(IMAGE_RE, (m) => {
-  const escaped = m.includes('\\/');
-  const out = webpFor(escaped ? m.replace(/\\\//g, '/') : m);
-  return escaped ? out.replace(/\//g, '\\/') : out;
-});
-
-// --- stylesheets: combine every <link rel=stylesheet> in <head>, in order --------------------------
-const LINK_RE = /<link rel=['"]stylesheet['"][^>]*href=['"]([^'"]+)['"][^>]*>\n?/g;
-function bundleCss(html) {
-  const head = html.slice(0, html.indexOf('</head>'));
-  const links = [...head.matchAll(LINK_RE)];
-  if (links.length < 2) return html;
-  const css = links.map(([, href]) => {
-    const path = href.split('?')[0];
-    let text = readFileSync(join(publicDir, path), 'utf8').replace(/@charset[^;]+;/gi, '');
-    // url(...) inside a stylesheet is relative to that stylesheet: make it absolute.
-    text = text.replace(/url\(\s*(['"]?)(?!data:|https?:|\/|#)([^'")]+)\1\s*\)/g,
-      (_, q, ref) => `url(${q}${posix.normalize(posix.join(posix.dirname(path), ref))}${q})`);
-    return `/* ${path} */\n${text}`;
-  }).join('\n');
-  const bundled = useWebp(css);
-  const name = `/assets/css/bundle-${createHash('sha256').update(bundled).digest('hex').slice(0, 10)}.css`;
-  writeFileSync(join(dist, name), bundled);
-  let first = true;
-  return html.replace(LINK_RE, (tag, href) => {
-    if (!links.some(([t]) => t === tag)) return tag;
-    if (!first) return '';
-    first = false;
-    return `<link rel="stylesheet" href="${name}">\n`;
-  });
-}
-
-// --- images: load below-the-fold images only as the visitor scrolls near them --------------------
-// Every <img> without a loading attribute gets loading="lazy", except ones marked
-// fetchpriority="high" (the header logo) or data-eager (add that to an image at the top of a page).
-const lazyImages = (html) => html.replace(/<img\b(?![^>]*\b(?:loading|fetchpriority|data-eager)=)/g, '<img loading="lazy"');
-
-mkdirSync(join(dist, 'assets/css'), { recursive: true });
-const pages = walk(pagesDir);
-for (const file of pages) {
-  const url = urlFor(file);
-  let html = readFileSync(file, 'utf8').replace(/<!-- @include ([\w-]+) -->/g, (_, name) => partial(name));
-  html = markActive(html, url);
-  html = html.replace('</head>', '<link rel="stylesheet" href="/assets/css/site.css">\n</head>');
-  html = html.replace('</body>', '<script src="/assets/js/site.js"></script>\n</body>');
-  html = useWebp(html);
-  html = lazyImages(html);
-  html = bundleCss(html);
-  const out = join(dist, relative(pagesDir, file));
+  const html = layout({ page, body: body + '\n' + templates.quoteBandHtml(), groups, assets, jsonLd });
+  const out = join(dist, page.path, 'index.html');
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, html);
+  report.push({ page, html });
 }
-console.log(`Built ${pages.length} pages into dist/`);
+
+// ---- sitemap, robots, redirects ----
+const indexable = report.filter(({ page }) => !page.noindex);
+writeFileSync(join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${indexable.map(({ page }) => `  <url><loc>${SITE.url}${page.path}</loc></url>`).join('\n')}
+</urlset>
+`);
+writeFileSync(join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+const redirects = JSON.parse(readFileSync(join(root, 'src/redirects.json'), 'utf8'));
+writeFileSync(join(dist, '_redirects'), Object.entries(redirects).map(([from, to]) => `${from} ${to} 301`).join('\n') + '\n');
+
+// ---- checks ----
+const errors = [];
+const ids = new Map(report.map(({ page, html }) => [page.path, new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]))]));
+const unique = (label, pick) => {
+  const seen = new Map();
+  for (const { page, html } of report) {
+    const v = pick(page, html);
+    if (!v) { errors.push(`${page.path}: missing ${label}`); continue; }
+    if (seen.has(v)) errors.push(`Duplicate ${label} on ${seen.get(v)} and ${page.path}: "${v}"`);
+    seen.set(v, page.path);
+  }
+};
+unique('title', (p) => p.title);
+unique('meta description', (p) => p.description);
+unique('H1', (p, html) => (html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1]);
+
+for (const { page, html } of report) {
+  if ((html.match(/<h1[\s>]/g) || []).length !== 1) errors.push(`${page.path}: must have exactly one H1`);
+  if (!html.includes(`<link rel="canonical" href="${SITE.url}${page.path}">`)) errors.push(`${page.path}: canonical missing`);
+  if (/wp-content|wp-includes|elementor/i.test(html)) errors.push(`${page.path}: contains WordPress/Elementor code`);
+  for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
+    if (/^(https?:|tel:|mailto:)/.test(href)) continue;
+    const [path, hash] = href.split('#');
+    const target = path === '' ? page.path : path;
+    if (/\.\w+$/.test(target)) { if (!existsSync(join(dist, target))) errors.push(`${page.path}: missing file ${href}`); continue; }
+    if (!byPath.has(target)) { errors.push(`${page.path}: broken link ${href}`); continue; }
+    if (hash && !ids.get(target).has(hash)) errors.push(`${page.path}: broken anchor ${href}`);
+  }
+  for (const [, src] of html.matchAll(/(?:src|srcset)="([^"]+)"/g)) {
+    for (const part of src.split(',')) {
+      const url = part.trim().split(' ')[0];
+      if (url.startsWith('/') && !existsSync(join(dist, url))) errors.push(`${page.path}: missing file ${url}`);
+    }
+  }
+}
+// Every page except Home must be in the main menu and in the footer.
+const menuHtml = report[0].html.slice(report[0].html.indexOf('<ul class="menu">'), report[0].html.indexOf('</nav>'));
+const footerHtml = report[0].html.slice(report[0].html.indexOf('<footer'), report[0].html.indexOf('</footer>'));
+for (const p of all) {
+  if (p.path === '/') continue;
+  if (!menuHtml.includes(`href="${p.path}"`)) errors.push(`${p.path}: not in the main menu`);
+  if (!footerHtml.includes(`href="${p.path}"`)) errors.push(`${p.path}: not in the footer`);
+}
+
+if (errors.length) {
+  console.error(`Build checks failed (${errors.length}):\n  ${[...new Set(errors)].join('\n  ')}`);
+  process.exit(1);
+}
+console.log(`Built ${report.length} pages (${indexable.length} in sitemap.xml). Links, anchors, images, titles, descriptions and H1s checked.`);

@@ -1,189 +1,146 @@
 import { test, expect } from '@playwright/test';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
-const PAGES = ['/', '/rack-repair/'];
 const PHONE = 'tel:+19896009030';
 const PHONE_TEXT = '1-989-600-9030';
 
-// External embeds (YouTube, Google Maps) are not part of this site; keep tests offline and deterministic.
+// Every page the build produced (dist/**/index.html).
+const dist = join(process.cwd(), 'dist');
+const walk = (dir) => readdirSync(dir).flatMap((f) => {
+  const p = join(dir, f);
+  return statSync(p).isDirectory() ? walk(p) : f === 'index.html' ? [p] : [];
+});
+const ROUTES = walk(dist).map((f) => '/' + f.slice(dist.length + 1).replace(/index\.html$/, '')).sort();
+
+// The YouTube video and Google Map are the only outside content; block them so tests are offline.
+const ALLOWED_EXTERNAL = ['www.youtube-nocookie.com', 'maps.google.com'];
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost)/, (route) => route.abort());
 });
-
 const isMobile = (testInfo) => testInfo.project.name === 'mobile';
 
-// Scroll the whole page like a visitor would (triggers lazy images, animations, on-demand scripts),
-// then wait for every image to finish loading.
-async function scrollThrough(page) {
-  const height = await page.evaluate(() => document.body.scrollHeight);
-  for (let y = 0; y < height; y += 500) {
-    await page.evaluate((y) => window.scrollTo(0, y), y);
-    await page.waitForTimeout(50);
-  }
-  // Images hidden on this screen size (e.g. the phone-only Call Now button on desktop) are lazy and never load.
-  await page.waitForFunction(() => [...document.images].every((img) => img.complete || img.getClientRects().length === 0));
-}
+test('the site has all 67 pages', () => {
+  expect(ROUTES.length).toBe(67);
+});
 
-// Scroll an element to the middle of the screen and click it (desktop) or tap it with a finger (mobile).
-// - The site uses smooth scrolling, so jump instantly; otherwise the element is still moving when clicked.
-// - Centring keeps the sticky header and the floating call button from covering it.
-// - On phones the page is a little wider than the screen (the carousels overflow, same as the live
-//   WordPress site), which offsets the browser's visible area; Playwright's click() then misjudges what
-//   is under the pointer, so tap at the element's on-screen position the way a visitor's finger would.
-async function clickCentered(locator) {
-  const page = locator.page();
-  await locator.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  if (!(await page.evaluate(() => navigator.maxTouchPoints > 0))) return locator.click();
-  await page.waitForTimeout(300);
-  const box = await locator.boundingBox();
-  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
-}
-
-for (const path of PAGES) {
-  test.describe(`page ${path}`, () => {
-    test('loads every local file with no script errors', async ({ page }) => {
-      const failed = [];
-      const errors = [];
-      page.on('response', (r) => { if (r.url().startsWith('http://localhost') && r.status() >= 400) failed.push(`${r.status()} ${r.url()}`); });
-      page.on('pageerror', (e) => errors.push(e.message));
-      await page.goto(path, { waitUntil: 'networkidle' });
-      await scrollThrough(page);
-      expect(failed).toEqual([]);
-      expect(errors).toEqual([]);
-    });
-
-    test('loads nothing from other websites except the YouTube video and Google Map', async ({ page }) => {
-      const external = [];
+test.describe('every page', () => {
+  for (const path of ROUTES) {
+    test(`${path} loads cleanly and fits the screen`, async ({ page }) => {
+      const problems = [];
+      page.on('pageerror', (e) => problems.push(`script error: ${e.message}`));
+      page.on('response', (r) => { if (r.url().startsWith('http://localhost') && r.status() >= 400) problems.push(`${r.status()} ${r.url()}`); });
       page.on('request', (r) => {
-        const { hostname } = new URL(r.url());
-        if (!['localhost', 'www.youtube.com', 'maps.google.com'].includes(hostname) && !r.url().startsWith('data:')) external.push(r.url());
+        const host = new URL(r.url()).hostname;
+        if (host !== 'localhost' && !ALLOWED_EXTERNAL.includes(host)) problems.push(`outside request: ${r.url()}`);
       });
-      await page.goto(path, { waitUntil: 'networkidle' });
-      await scrollThrough(page);
-      expect(external).toEqual([]); // e.g. nothing from the old WordPress site, which will be shut down
+      const res = await page.goto(path, { waitUntil: 'load' });
+      expect(res.status()).toBe(200);
+      await expect(page.locator('h1')).toHaveCount(1);
+      await expect(page.locator('h1')).toBeVisible();
+      const fit = await page.evaluate(() => {
+        const h1 = document.querySelector('h1');
+        return { page: document.documentElement.scrollWidth <= document.documentElement.clientWidth, h1: h1.scrollWidth <= h1.clientWidth + 1 };
+      });
+      expect(fit, 'no sideways scrolling and headline fits').toEqual({ page: true, h1: true });
+      expect(problems).toEqual([]);
     });
-
-    test('page does not slide sideways', async ({ page }) => {
-      await page.goto(path, { waitUntil: 'networkidle' });
-      await scrollThrough(page);
-      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth,
-      }));
-      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
-    });
-
-    test('all images load', async ({ page }) => {
-      await page.goto(path, { waitUntil: 'networkidle' });
-      await scrollThrough(page);
-      const broken = await page.evaluate(() => [...document.images]
-        .filter((img) => img.complete && img.currentSrc && img.naturalWidth === 0)
-        .map((img) => img.currentSrc));
-      expect(broken).toEqual([]);
-    });
-
-    test('brand fonts are self-hosted and applied', async ({ page }) => {
-      await page.goto(path, { waitUntil: 'networkidle' });
-      await page.evaluate(() => document.fonts.ready);
-      const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
-      expect(loaded).toContain('Barlow');
-      expect(await page.locator('h1').first().evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/Barlow/);
-    });
-
-    test('every in-page link points at a section that exists', async ({ page }) => {
-      await page.goto(path);
-      const missing = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="#"]')]
-        .map((a) => a.getAttribute('href')).filter((h) => h.length > 1))]
-        .filter((h) => !document.getElementById(h.slice(1))));
-      expect(missing).toEqual([]);
-    });
-
-    test('header logo links home and stays visible while scrolling', async ({ page }) => {
-      await page.goto(path, { waitUntil: 'networkidle' });
-      // Elementor's sticky header keeps a hidden placeholder copy, so pick the visible logo.
-      const logo = page.locator('.elementor-location-header .elementor-widget-theme-site-logo a').filter({ visible: true });
-      await expect(logo).toHaveAttribute('href', '/');
-      await expect(logo.locator('img')).toBeVisible();
-      await page.evaluate(() => window.scrollTo(0, 3000));
-      await page.waitForTimeout(500);
-      const box = await logo.locator('img').boundingBox();
-      expect(box.y).toBeGreaterThanOrEqual(-1);
-      expect(box.y).toBeLessThan(150); // sticky header
-    });
-  });
-}
-
-test('navigation menu works and jumps to sections', async ({ page }, testInfo) => {
-  await page.goto('/', { waitUntil: 'networkidle' });
-  const header = page.locator('.elementor-location-header');
-  if (isMobile(testInfo)) {
-    const toggle = header.locator('.elementor-menu-toggle').first();
-    await expect(toggle).toBeVisible();
-    await expect(header.locator('.elementor-nav-menu--main').first()).toBeHidden();
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    const gallery = header.locator('.elementor-nav-menu--dropdown a[href="#Gallery"]').first();
-    await expect(gallery).toBeVisible();
-    await gallery.click();
-  } else {
-    await expect(header.locator('.elementor-menu-toggle').first()).toBeHidden();
-    const main = header.locator('.elementor-nav-menu--main').first();
-    await expect(main.locator('a', { hasText: 'Home' })).toHaveClass(/elementor-item-active/);
-    await main.locator('a[href="#Gallery"]').click();
   }
-  await expect.poll(() => page.evaluate(() => Math.abs(document.getElementById('Gallery').getBoundingClientRect().top))).toBeLessThan(250);
 });
 
-test('service carousel arrows change the slide', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'networkidle' });
-  const carousel = page.locator('.elementor-widget-image-carousel').first();
+test('home and rack repair: every image loads after scrolling the whole page', async ({ page }) => {
+  for (const path of ['/', '/rack-repair/']) {
+    await page.goto(path, { waitUntil: 'load' });
+    const height = await page.evaluate(() => document.body.scrollHeight);
+    for (let y = 0; y < height; y += 600) { await page.evaluate((y) => window.scrollTo(0, y), y); await page.waitForTimeout(40); }
+    await page.waitForFunction(() => [...document.images].every((img) => img.complete || img.getClientRects().length === 0));
+    const broken = await page.evaluate(() => [...document.images].filter((i) => i.complete && i.getClientRects().length && i.naturalWidth === 0).map((i) => i.src));
+    expect(broken).toEqual([]);
+  }
+});
+
+test('main menu reaches a page in every section', async ({ page }, testInfo) => {
+  const targets = [['Capabilities', '/capabilities/dunnage/'], ['Carts', '/carts/tugger-carts/'], ['Racks', '/racks/automotive-racks/'],
+    ['Fabrication', '/rack-changeovers-reworks/'], ['Industries', '/industries/automotive/'], ['Company', '/request-a-quote/']];
+  for (const [group, href] of targets) {
+    await page.goto('/');
+    const nav = page.locator('header .nav');
+    if (isMobile(testInfo)) {
+      await expect(nav.locator('.header__cta')).toBeHidden();
+      await nav.locator('.menu-toggle').click();
+      const toggle = nav.locator(`.menu__sub-toggle[aria-label="Show ${group} pages"]`);
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    } else {
+      await expect(nav.locator('.menu-toggle')).toBeHidden();
+      await nav.locator('.menu__link', { hasText: group }).hover();
+    }
+    const link = nav.locator(`.submenu a[href="${href}"]`);
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.locator('.menu > li.is-current > .menu__link')).toHaveText(group);
+  }
+});
+
+test('footer links to every page', async ({ page }) => {
+  await page.goto('/');
+  const footerLinks = await page.locator('footer a[href^="/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  for (const path of ROUTES.filter((p) => p !== '/')) expect(footerLinks, path).toContain(path);
+});
+
+test('carousel arrows change the photo', async ({ page }) => {
+  await page.goto('/');
+  const carousel = page.locator('.carousel').first();
   await carousel.scrollIntoViewIfNeeded();
-  const active = () => carousel.locator('.swiper-slide-active').getAttribute('data-swiper-slide-index');
-  await expect.poll(active).not.toBeNull();
-  const before = await active();
-  await clickCentered(carousel.locator('.elementor-swiper-button-next'));
-  await expect.poll(active).not.toBe(before);
+  const pos = () => carousel.locator('.carousel__track').evaluate((t) => Math.round(t.scrollLeft / t.clientWidth));
+  const before = await pos();
+  await carousel.locator('.carousel__btn--next').click();
+  await expect.poll(pos).not.toBe(before);
 });
 
-test('call buttons dial the business number', async ({ page }, testInfo) => {
-  await page.goto('/', { waitUntil: 'networkidle' });
-  const floating = page.locator('.elementor-element-865e51e');
-  if (isMobile(testInfo)) {
-    await expect(floating).toBeVisible();
-    await expect(floating.locator('a')).toHaveAttribute('href', PHONE);
-    await expect(floating).toHaveCSS('position', 'fixed');
-  } else {
-    await expect(floating).toBeHidden();
-  }
-  await expect(page.locator(`a[href="${PHONE}"]`).first()).toBeAttached();
-});
-
-for (const path of PAGES) {
-  test(`every phone link and number on ${path} is ${PHONE_TEXT}`, async ({ page }) => {
+test('phone numbers and call buttons all use 1-989-600-9030', async ({ page }, testInfo) => {
+  for (const path of ['/', '/contact/', '/racks/']) {
     await page.goto(path);
     const links = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="tel:"]')].map((a) => a.getAttribute('href')))]);
     expect(links).toEqual([PHONE]);
     const shown = await page.evaluate(() => document.body.innerText.match(/\(?\b\d{3}\)?[ .-]\d{3}[ .-]\d{4}\b/g) || []);
-    expect(shown.length).toBeGreaterThan(0);
-    for (const number of shown) expect(`1-${number}`).toBe(PHONE_TEXT);
-  });
-}
+    for (const n of shown) expect(`1-${n}`).toBe(PHONE_TEXT);
+  }
+  const floating = page.locator('.call-now');
+  if (isMobile(testInfo)) {
+    await expect(floating).toBeVisible();
+    await expect(floating).toHaveCSS('position', 'fixed');
+  } else {
+    await expect(floating).toBeHidden();
+  }
+});
 
-test('contact form validates and does not post to the old WordPress backend', async ({ page }) => {
+test('quote form checks required fields and does not submit anywhere yet', async ({ page }) => {
   const posts = [];
   page.on('request', (r) => { if (r.method() === 'POST') posts.push(r.url()); });
-  await page.goto('/', { waitUntil: 'networkidle' });
-  const form = page.locator('form.elementor-form');
-  await form.scrollIntoViewIfNeeded();
+  await page.goto('/request-a-quote/');
+  const form = page.locator('form[data-form]');
   const submit = form.locator('button[type="submit"]');
-
-  await clickCentered(submit);
-  expect(await form.locator('input[name="form_fields[name]"]').evaluate((el) => el.validity.valueMissing)).toBe(true);
-  await expect(form.locator('.elementor-message')).toHaveCount(0);
-
-  await form.locator('input[name="form_fields[name]"]').fill('Test');
-  await form.locator('input[name="form_fields[field_8ea3bed]"]').fill('User');
-  await form.locator('input[name="form_fields[email]"]').fill('test@example.com');
-  await form.locator('input[name="form_fields[field_85dd49f]"]').fill('555-555-5555');
-  await clickCentered(submit);
-  await expect(form.locator('.elementor-message')).toContainText('not available yet');
+  await submit.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await submit.click();
+  expect(await form.locator('[name="first_name"]').evaluate((el) => el.validity.valueMissing)).toBe(true);
+  await form.locator('[name="first_name"]').fill('Test');
+  await form.locator('[name="last_name"]').fill('User');
+  await form.locator('[name="email"]').fill('test@example.com');
+  await form.locator('[name="phone"]').fill('555-555-5555');
+  await submit.click();
+  await expect(form.locator('.form__message')).toContainText('not available yet');
   expect(posts).toEqual([]);
+});
+
+test('sitemap lists indexable pages only, with clean canonical URLs', () => {
+  const xml = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
+  const urls = [...xml.matchAll(/<loc>https:\/\/materialhandlingracks\.com([^<]+)<\/loc>/g)].map((m) => m[1]);
+  expect(urls.length).toBe(62);
+  for (const path of ROUTES) {
+    const html = readFileSync(join(dist, path, 'index.html'), 'utf8');
+    expect(html).toContain(`<link rel="canonical" href="https://materialhandlingracks.com${path}">`);
+    expect(urls.includes(path)).toBe(!html.includes('content="noindex'));
+  }
 });
