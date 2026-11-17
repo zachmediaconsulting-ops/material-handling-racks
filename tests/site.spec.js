@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 const PAGES = ['/', '/rack-repair/'];
-const PHONE = 'tel:+18106443070';
+const PHONE = 'tel:+19896009030';
+const PHONE_TEXT = '1-989-600-9030';
 
 // External embeds (YouTube, Google Maps) are not part of this site; keep tests offline and deterministic.
 test.beforeEach(async ({ page }) => {
@@ -133,6 +134,17 @@ test('call buttons dial the business number', async ({ page }, testInfo) => {
   }
   await expect(page.locator(`a[href="${PHONE}"]`).first()).toBeAttached();
 });
+
+for (const path of PAGES) {
+  test(`every phone link and number on ${path} is ${PHONE_TEXT}`, async ({ page }) => {
+    await page.goto(path);
+    const links = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="tel:"]')].map((a) => a.getAttribute('href')))]);
+    expect(links).toEqual([PHONE]);
+    const shown = await page.evaluate(() => document.body.innerText.match(/\(?\b\d{3}\)?[ .-]\d{3}[ .-]\d{4}\b/g) || []);
+    expect(shown.length).toBeGreaterThan(0);
+    for (const number of shown) expect(`1-${number}`).toBe(PHONE_TEXT);
+  });
+}
 
 test('contact form validates and does not post to the old WordPress backend', async ({ page }) => {
   const posts = [];
