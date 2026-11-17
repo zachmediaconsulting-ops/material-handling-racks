@@ -70,7 +70,7 @@ export const pages = [
     title: 'Steel Coil Racks for Storage & Handling | Rivers',
     description: 'Custom coil racks that cradle and secure coils of steel, wire, and other materials for safer storage, staging, and forklift handling.',
     h1: 'Coil Racks for Storage & Handling', kicker: 'Coils kept upright, secure, and easy to reach.',
-    image: 'yellow-industrial-material-racks', review: 'UNVERIFIED: no coil racks appear in the gallery. Confirm you build these. No load ratings are stated.',
+    image: 'yellow-industrial-material-racks',
     summary: 'Cradles and racks that keep coils stable for storage and forklift handling.',
     band: 'Coils are heavy and round, so they want to roll. A coil rack cradles each coil securely so it can be stored, staged, and moved safely.',
     intro: { heading: 'Secure Storage for Heavy Coils', text: [
@@ -216,7 +216,6 @@ export const pages = [
     description: 'Heavy-duty steel shipping racks for large, heavy, and high-value components, with reinforced frames for forklift handling, stacking, and long-distance transport.',
     h1: 'Heavy-Duty Shipping Racks', kicker: 'Reinforced for big, heavy, high-value parts.',
     image: 'forklift-moving-assembly-rack', slides: ['yellow-automotive-handling-racks', 'forklift-moving-assembly-rack'],
-    review: 'No load capacities are stated. Add rated capacities only if engineered and verified.',
     summary: 'Reinforced racks for large, heavy, or high-value parts in transit.',
     band: 'Heavy parts multiply every force on a rack: forklift impacts, stacking loads, and road vibration. Heavy-duty racks are reinforced where those forces land.',
     intro: { heading: 'Reinforced Where It Counts', text: [
@@ -245,7 +244,7 @@ export const pages = [
     title: 'Radiator Shipping Racks for Cooling Components | Rivers',
     description: 'Custom racks for shipping radiators, condensers, and heat exchangers with fins and tanks protected and each unit separated.',
     h1: 'Radiator Shipping Racks', kicker: 'Protecting fins, tanks, and connections in transit.',
-    image: 'multi-level-assembly-rack', review: 'UNVERIFIED: no radiator racks appear in the gallery. Confirm you build these before publishing.',
+    image: 'multi-level-assembly-rack',
     summary: 'Racks that protect radiator fins, tanks, and fittings during shipping.',
     band: 'Radiator fins crush with a fingertip, and tanks and fittings break easily. Radiator racks hold each unit by its strong points and keep the rest untouched.',
     intro: { heading: 'Shipping Delicate Cooling Components', text: [
@@ -274,7 +273,7 @@ export const pages = [
     title: 'Racks With Thermoformed Dunnage for Shipping | Rivers',
     description: 'Steel shipping racks designed to hold thermoformed trays and dunnage for small and medium parts, combining a durable frame with part-specific trays.',
     h1: 'Thermoform Dunnage Shipping Racks', kicker: 'Steel strength with part-shaped trays.',
-    image: 'blue-automotive-material-racks', review: 'UNVERIFIED: confirm whether you make thermoformed trays or integrate trays supplied by others. No thermoforming capability is claimed.',
+    image: 'blue-automotive-material-racks',
     summary: 'Steel racks that carry part-specific thermoformed trays.',
     band: 'Thermoformed trays cradle each part in a shaped pocket. A steel rack gives those trays a strong, stackable structure for shipping.',
     intro: { heading: 'Combining Trays With a Steel Rack', text: [
@@ -390,7 +389,7 @@ export const pages = [
     title: 'Steel Wire Baskets & Mesh Containers | Rivers',
     description: 'Custom steel mesh and wire baskets for parts storage, washing, and handling, with visibility, drainage, and stacking built in.',
     h1: 'Steel Wire & Mesh Baskets', kicker: 'See the parts, drain the fluids, stack the baskets.',
-    image: 'painted-rack-mesh-decks', review: 'UNVERIFIED: the gallery shows mesh decks on racks, not wire baskets. Confirm you build wire baskets before publishing.',
+    image: 'painted-rack-mesh-decks',
     summary: 'Mesh baskets and containers for parts storage, washing, and visibility.',
     band: 'Mesh baskets let you see what’s inside, let fluids drain and air pass through, and stack when loaded.',
     intro: { heading: 'Open Containers With Practical Advantages', text: [

@@ -38,7 +38,7 @@ export const pages = [
     title: 'Material Handling Rack Engineering & Design | Rivers',
     description: 'Custom rack and cart design built around your part, process, and plant: part support, locator layout, forklift and tugger interfaces, and design for repair.',
     h1: 'Material Handling Rack Engineering & Design', kicker: 'Designed around the part, not a catalog.',
-    image: 'automotive-panel-assembly-rack', review: 'Confirm the design tools/CAD formats you accept and whether drawings or models are delivered to customers.',
+    image: 'automotive-panel-assembly-rack',
     summary: 'Racks and carts engineered around the part, the process, and how operators really use them.',
     band: 'The cheapest rack to build is rarely the cheapest rack to own. Design decisions made up front decide how well parts are protected and how long the rack stays in service.',
     intro: {
@@ -71,7 +71,7 @@ export const pages = [
     title: 'Rack & Cart Prototyping for New Programs | Rivers',
     description: 'Build and test a prototype material handling rack or cart before committing to a full fleet. Validate part fit, loading, and handling on your floor.',
     h1: 'Prototype Racks & Carts', kicker: 'Prove it with one before you build fifty.',
-    image: 'blue-automation-carts-2', review: 'Prototype-first workflow is mentioned on the current site (“single custom prototype”). Confirm typical prototype lead times before adding any.',
+    image: 'blue-automation-carts-2',
     summary: 'A single rack or cart built and tested before the full production run.',
     band: 'A prototype answers the questions drawings can’t: does the part load easily, does it stay put, and does the rack work with the equipment on your floor?',
     intro: {
@@ -104,7 +104,7 @@ export const pages = [
     title: 'Steel Cutting & Sawing for Rack Fabrication | Rivers',
     description: 'Accurate cut-to-length tube, angle, and bar stock is where every square, durable rack starts. Learn how cutting and sawing fit into our rack fabrication.',
     h1: 'Steel Cutting & Sawing for Rack Fabrication', kicker: 'Square cuts make square racks.',
-    image: 'welded-steel-frame', review: 'Confirm in-house saw/cutting equipment. No equipment types or capacities are listed on this page.',
+    image: 'welded-steel-frame',
     summary: 'Cut-to-length tube, angle, and bar stock prepared for accurate rack and cart frames.',
     band: 'Fit-up problems start at the saw. Consistent, accurate cut lengths and clean ends are what let frames weld up square and racks stack the way they should.',
     intro: {
@@ -137,7 +137,7 @@ export const pages = [
     title: 'Laser Cut Parts for Racks, Carts & Dunnage | Rivers',
     description: 'Laser-cut gussets, brackets, locator plates, and mounting parts for custom material handling racks, carts, and fixtures. Precise parts for repeatable part location.',
     h1: 'Laser Cutting for Racks, Carts & Fixtures', kicker: 'Precise plate parts where precision counts.',
-    image: 'cart-locator-detail', review: 'UNVERIFIED: confirm laser cutting is done in-house or through a partner, and the materials and thicknesses offered. No specs are stated.',
+    image: 'cart-locator-detail',
     summary: 'Precise plate parts such as locators, gussets, and brackets for racks and fixtures.',
     band: 'Locator plates, gussets, brackets, and tabs decide where a part sits in a rack. Precise plate parts are what make part location repeatable.',
     intro: {
@@ -170,7 +170,7 @@ export const pages = [
     title: 'CNC Machined Components for Material Handling | Rivers',
     description: 'Machined pins, locators, bushings, and hitch components for custom racks, carts, and fixtures where fit and wear resistance matter.',
     h1: 'CNC Machined Components for Racks & Carts', kicker: 'Tight-fitting parts for high-wear locations.',
-    image: 'tugger-cart-hitch', review: 'UNVERIFIED: confirm CNC machining is in-house or outsourced, and the parts typically machined. No machine types or tolerances are stated.',
+    image: 'tugger-cart-hitch',
     summary: 'Machined pins, locators, bushings, and hitch parts for high-wear locations.',
     band: 'Pins, locators, bushings, and hitch parts take the most wear on a rack or cart. Machined components fit better and last longer where parts and equipment make contact.',
     intro: {
@@ -237,7 +237,6 @@ export const pages = [
     description: 'Repeatable production welding for fleets of racks, carts, and returnable containers. Consistent units for program launches and fleet expansions.',
     h1: 'Production Welding Services', kicker: 'Consistency across every unit in the fleet.',
     image: 'blue-automation-carts', slides: ['stacked-blue-assembly-racks', 'blue-automation-carts'],
-    review: 'Confirm production volumes you want to promote and whether welding fixtures/jigs are used. No quantities or rates are stated.',
     summary: 'Repeatable welding for fleets of racks, carts, and containers.',
     band: 'A prototype proves the design. Production welding turns it into a fleet where every rack is interchangeable, stacks with the others, and works with the same handling equipment.',
     intro: {
@@ -270,7 +269,7 @@ export const pages = [
     title: 'Finishing for Steel Racks & Carts | Rivers Industrial Racks',
     description: 'Surface preparation, edge finishing, and protective coatings that help steel racks and carts resist wear and protect the parts they carry.',
     h1: 'Finishing for Material Handling Equipment', kicker: 'The details that protect your parts and your racks.',
-    image: 'painted-rack-mesh-decks', review: 'UNVERIFIED: confirm which finishing steps are done in-house (grinding, blasting, coating) and which finishes you offer.',
+    image: 'painted-rack-mesh-decks',
     summary: 'Surface prep, edge finishing, and protective coatings for racks and carts.',
     band: 'Sharp edges, weld spatter, and bare steel cause scratched parts, cut gloves, and rust. Finishing is what makes a rack safe to handle and kind to the parts it carries.',
     intro: {
@@ -304,7 +303,6 @@ export const pages = [
     description: 'Painted steel racks and carts in program colors, plus repainting of repaired and refurbished racks so your fleet is protected and easy to identify.',
     h1: 'Industrial Painting for Racks & Carts', kicker: 'Protection and identification in one step.',
     image: 'painted-rack-base', slides: ['painted-rack-mesh-decks', 'orange-parts-carts'],
-    review: 'UNVERIFIED: the gallery shows painted racks. Confirm painting is done in-house and which paint types are offered. No paint systems are named on this page.',
     summary: 'Painted racks and carts in program colors, including repainting refurbished racks.',
     band: 'Color tells an operator which rack belongs to which program, and paint keeps that rack from rusting while it does its job.',
     intro: {
@@ -338,7 +336,6 @@ export const pages = [
     description: 'Custom dunnage, part locators, and protective contact surfaces that hold parts securely in racks and containers. New dunnage, replacement, and reconfiguration.',
     h1: 'Custom Dunnage & Part Fixtures', kicker: 'The part of the rack that touches the part.',
     image: 'steel-container-with-dunnage', slides: ['steel-container-with-dunnage', 'automotive-hood-rack'],
-    review: 'Confirm the dunnage materials you work with. Materials below are described generally (no brands or specs).',
     summary: 'Custom dunnage, locators, and protective contact surfaces that hold parts securely.',
     band: 'Dunnage is where most part damage starts and where most rack repairs are needed. Getting it right protects parts and keeps racks in service longer.',
     intro: {
@@ -372,7 +369,7 @@ export const pages = [
     title: 'Rack & Cart Assembly and Kitting | Rivers Industrial Racks',
     description: 'Final assembly of racks and carts: dunnage, casters, hitches, hardware, and ID plates installed so equipment arrives ready to load and use.',
     h1: 'Rack & Cart Assembly', kicker: 'Delivered ready for parts, not ready for more work.',
-    image: 'assembly-rack-on-tugger-cart', review: 'Confirm which components you install (casters, hitches, hardware) and whether you supply purchased components.',
+    image: 'assembly-rack-on-tugger-cart',
     summary: 'Dunnage, casters, hitches, and hardware installed so equipment arrives ready to use.',
     band: 'A rack isn’t finished when the welding stops. Dunnage, casters, hitches, latches, and labels all have to be installed and checked before it goes to work.',
     intro: {
@@ -405,7 +402,7 @@ export const pages = [
     title: 'Quality Control for Racks, Carts & Repairs | Rivers',
     description: 'How we check dimensions, welds, part fit, and function on custom racks, carts, and repaired equipment before it ships.',
     h1: 'Quality Control for Material Handling Equipment', kicker: 'Checked before it ships, not after it fails.',
-    image: 'repaired-racks-ready-to-ship', review: 'UNVERIFIED: describe your actual inspection steps. No certifications (e.g., ISO, AWS) are claimed. Add them only if you hold them.',
+    image: 'repaired-racks-ready-to-ship',
     summary: 'Checks on dimensions, welds, part fit, and function before equipment ships.',
     band: 'A rack that doesn’t fit the part, won’t stack, or cracks after a month costs far more than the rack itself. Quality checks keep those problems in our shop and out of yours.',
     intro: {

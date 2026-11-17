@@ -144,3 +144,13 @@ test('sitemap lists indexable pages only, with clean canonical URLs', () => {
     expect(urls.includes(path)).toBe(!html.includes('content="noindex'));
   }
 });
+
+test('a new page opens at the top after following a link from the bottom of a page', async ({ page }) => {
+  await page.goto('/racks/');
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  const link = page.locator('footer .sitemap a[href="/carts/tugger-carts/"]');
+  await link.evaluate((a) => a.closest('details').setAttribute('open', ''));
+  await link.click();
+  await expect(page).toHaveURL(/\/carts\/tugger-carts\/$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});

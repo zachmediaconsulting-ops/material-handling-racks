@@ -1,6 +1,15 @@
 // Rivers Industrial Racks: all site behaviour (plain JavaScript, no libraries).
 document.documentElement.classList.add('js');
 
+// Open every new page at the top. (Back/forward keeps the browser's remembered position,
+// and links to a section such as #Contact still jump there.) scrollIntoView also scrolls an
+// embedding frame, such as a preview viewer, back to the top.
+const navEntry = performance.getEntriesByType?.('navigation')[0];
+if (!location.hash && navEntry?.type !== 'back_forward') {
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  document.documentElement.scrollIntoView({ block: 'start', behavior: 'instant' });
+}
+
 // ---- Mobile menu: hamburger opens the panel; arrows open each section ----
 const toggle = document.querySelector('.menu-toggle');
 const panel = document.getElementById('nav-panel');

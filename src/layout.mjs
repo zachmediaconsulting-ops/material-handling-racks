@@ -94,7 +94,7 @@ ${jsonLd.map((d) => `<script type="application/ld+json">${JSON.stringify(d).repl
 ${body}
 </main>
 ${footer(groups, page.path)}
-<a class="call-now" href="${SITE.phoneHref}" aria-label="Call now: ${SITE.phone}">${img('call-now', `Call now, ${SITE.hours}`, { sizes: '246px' })}</a>
+<a class="btn call-now" href="${SITE.phoneHref}" aria-label="Call now: ${SITE.phone}">${icon('phone')}Call Now</a>
 <script src="${assets.js}" defer></script>
 </body>
 </html>

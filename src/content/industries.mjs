@@ -117,7 +117,6 @@ export const pages = [
     description: 'Racks, carts, and fixtures with precise, repeatable part location for robotic load/unload, automated material handling, and fixture integration.',
     h1: 'Automation-Compatible Racks & Fixtures', kicker: 'Repeatable part location robots can count on.',
     image: 'cart-locator-detail', slides: ['blue-automation-carts', 'cart-locator-detail'],
-    review: 'Confirm any experience working with specific robot integrators before naming them. None are named here.',
     summary: 'Racks and fixtures with repeatable part location for robotic picking.',
     band: 'Robots don’t adapt to a part that’s a little out of place. Automation-compatible racks present every part in the same position, every time.',
     intro: { heading: 'Part Presentation for Automation', text: [

@@ -69,7 +69,7 @@ export const pages = [
     title: 'Custom Drum Dollies & Barrel Hand Trucks | Rivers',
     description: 'Custom drum dollies and barrel hand trucks built for safe handling of drums and barrels in plants that need more than an off-the-shelf dolly.',
     h1: 'Barrel & Drum Dollies and Hand Trucks', kicker: 'Safer handling for heavy, awkward containers.',
-    image: 'orange-tugger-cart-frame', review: 'No drum/barrel projects appear in the current gallery. Confirm you build these before publishing, and add a photo if available.',
+    image: 'orange-tugger-cart-frame',
     summary: 'Dollies and hand trucks for moving drums and barrels safely.',
     band: 'Drums and barrels are heavy, top-heavy, and easy to tip. A dolly or hand truck built for the container and the route keeps them upright and keeps people safe.',
     intro: { heading: 'Drum Handling Built for Your Containers', text: [
@@ -157,7 +157,6 @@ export const pages = [
     description: 'Custom mother/daughter cart systems that let tugger trains drop and pick up loaded daughter carts at the line, reducing forklift traffic and handling.',
     h1: 'Mother / Daughter Cart Systems', kicker: 'Drop off full carts, pick up empties, keep moving.',
     image: 'assembly-rack-on-tugger-cart', slides: ['blue-cart-orange-base', 'assembly-rack-on-tugger-cart'],
-    review: 'Confirm you build complete mother/daughter systems (transfer mechanism, locks). Photos show racks on cart bases.',
     summary: 'Tugger-towed mother frames carrying daughter carts that roll off at the line.',
     band: 'Mother/daughter carts let one tugger train deliver several loaded carts to the line and collect the empties in the same loop, without a forklift.',
     intro: { heading: 'How Mother/Daughter Systems Work', text: [
@@ -186,7 +185,7 @@ export const pages = [
     title: 'Custom Oven Carts for Curing & Heat Processes | Rivers',
     description: 'Steel oven carts that carry parts through curing, drying, and heat-treat processes with open frames for airflow and supports that hold parts in position.',
     h1: 'Custom Oven Carts', kicker: 'Carts that go where the heat is.',
-    image: 'painted-rack-mesh-decks', review: 'UNVERIFIED: no oven carts appear in the gallery. Confirm you build these. No temperature ratings are stated; any limits must come from you.',
+    image: 'painted-rack-mesh-decks',
     summary: 'Open-frame carts that carry parts through curing, drying, and heat processes.',
     band: 'Oven carts have to hold parts in position through heat cycles while letting air and heat reach every part.',
     intro: { heading: 'Carts Built for Heat Processes', text: [
@@ -303,7 +302,7 @@ export const pages = [
     title: 'Tilt Carts for Ergonomic Part Access | Rivers',
     description: 'Custom tilt carts that angle parts and containers toward the operator for easier, safer picking at the line and less reaching and bending.',
     h1: 'Ergonomic Tilt Carts', kicker: 'Bring the parts to the operator.',
-    image: 'blue-rack-cart', review: 'Confirm tilting mechanisms you build (fixed angle vs. adjustable). No tilt angles are stated.',
+    image: 'blue-rack-cart',
     summary: 'Carts that angle parts toward the operator for easier, safer picking.',
     band: 'Reaching into the back of a deep cart or bin, shift after shift, wears people down. Tilt carts angle the load so parts come to the operator.',
     intro: { heading: 'Easier Reach, Safer Picking', text: [

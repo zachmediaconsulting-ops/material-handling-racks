@@ -117,7 +117,6 @@ export const pages = [
   }),
   co({
     path: '/container-study/', label: 'Container Study', schema: 'Service',
-    review: 'UNVERIFIED: confirm you offer packaging/container studies as a service and that the steps below match your process.',
     title: 'Container Study: Plan Racks & Packaging for Your Part | Rivers',
     description: 'A container study reviews your part, packaging, and handling to recommend the right rack, container, or dunnage before you commit to a fleet.',
     h1: 'Container & Packaging Study', kicker: 'Get the packaging right before you build the fleet.',

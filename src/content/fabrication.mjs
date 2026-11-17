@@ -43,7 +43,7 @@ export const pages = [
     title: 'Aluminum Fabrication for Racks, Carts & Fixtures | Rivers',
     description: 'Custom aluminum fabrication for lighter racks, carts, fixtures, and components where weight, corrosion resistance, or part contact matter.',
     h1: 'Aluminum Fabrication', kicker: 'Lighter equipment where weight matters.',
-    image: 'welding', review: 'UNVERIFIED: confirm aluminum fabrication/welding capability before publishing. No aluminum projects appear in the gallery.',
+    image: 'welding',
     summary: 'Lighter racks, carts, and fixtures where weight and corrosion matter.',
     band: 'When equipment is lifted by hand, moved often, or needs to resist corrosion, aluminum can be a better choice than steel.',
     intro: { heading: 'When Aluminum Makes Sense', text: [
@@ -101,7 +101,7 @@ export const pages = [
     title: 'Stainless Steel Fabrication for Industrial Use | Rivers',
     description: 'Custom stainless steel fabrication for racks, carts, and fixtures used in wash, wet, or clean environments where corrosion resistance matters.',
     h1: 'Stainless Steel Fabrication', kicker: 'Corrosion resistance without coatings.',
-    image: 'exhaust-part-rack', review: 'UNVERIFIED: confirm stainless fabrication/welding capability before publishing. No stainless projects appear in the gallery.',
+    image: 'exhaust-part-rack',
     summary: 'Corrosion-resistant racks, carts, and fixtures for wet or clean areas.',
     band: 'Where equipment is washed, wet, or must stay clean, stainless steel resists corrosion without relying on paint.',
     intro: { heading: 'For Wet, Washed, and Clean Environments', text: [
