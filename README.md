@@ -37,6 +37,12 @@ npm run perf         # with npm start running: measure load speed on a simulated
 
 Pages with `noindex: true` are reachable from the menu but hidden from search engines and left out of the sitemap. Use this for placeholder pages.
 
-## Not wired up yet
+## Contact / quote form
 
-- **Forms:** the contact and quote forms validate input but don't send anywhere yet. They show a "please call us" message. Connect a form service in `src/assets/site.js`.
+The forms post to `functions/api/quote.js`, a Cloudflare Pages Function that emails each request (with any
+attached drawings) through Resend. It needs the settings listed in `docs/launch.md`; without them the form
+tells visitors to call instead of pretending to succeed. `npm test` also runs the function's own tests.
+
+## Launching
+
+See `docs/launch.md` for Cloudflare Pages, the domain move from SiteGround, and Resend.

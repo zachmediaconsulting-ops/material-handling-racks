@@ -89,16 +89,46 @@ if ('IntersectionObserver' in window) {
   reveals.forEach((el) => el.classList.add('is-visible'));
 }
 
-// ---- Contact / quote forms: not connected to an email service yet ----
-// Replace this block when a form service is chosen.
+// ---- Contact / quote forms: send to /api/quote (functions/api/quote.js), which emails them ----
+const PHONE = '1-989-600-9030';
+const MAX_FILES = 10;
+const MAX_BYTES = 15 * 1024 * 1024;
 document.querySelectorAll('form[data-form]').forEach((form) => {
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+  const button = form.querySelector('[type="submit"]');
+  const say = (text, ok) => {
     form.querySelector('.form__message')?.remove();
     const msg = document.createElement('p');
-    msg.className = 'form__message';
-    msg.setAttribute('role', 'alert');
-    msg.textContent = 'Online submissions are not available yet. Please call us at 1-989-600-9030 to discuss your project.';
+    msg.className = `form__message${ok ? ' form__message--ok' : ''}`;
+    msg.setAttribute('role', ok ? 'status' : 'alert');
+    msg.textContent = text;
     form.append(msg);
+    msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const files = [...form.querySelectorAll('input[type="file"]')].flatMap((input) => [...input.files]);
+    if (files.length > MAX_FILES) return say(`Please attach no more than ${MAX_FILES} files.`);
+    if (files.reduce((n, f) => n + f.size, 0) > MAX_BYTES) return say('Attachments are limited to 15 MB in total. Please send fewer or smaller files.');
+    const data = new FormData(form);
+    data.set('page', location.pathname);
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: data, headers: { accept: 'application/json' } });
+      const result = await res.json().catch(() => ({}));
+      if (res.ok && result.ok) {
+        const first = data.get('first_name');
+        form.reset();
+        say(`Thanks${first ? `, ${first}` : ''}! Your request was sent. We’ll review it and get back to you soon. For anything urgent, call ${PHONE}.`, true);
+      } else {
+        say(result.error || `Your request couldn’t be sent. Please call us at ${PHONE}.`);
+      }
+    } catch {
+      say(`Your request couldn’t be sent. Please check your connection, or call us at ${PHONE}.`);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Send';
+      window.turnstile?.reset();
+    }
   });
 });

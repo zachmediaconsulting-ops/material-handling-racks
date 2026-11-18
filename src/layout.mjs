@@ -1,7 +1,7 @@
 // The page shell: <head>, top bar, header with navigation, footer.
 import { esc, icon, img } from './lib.mjs';
 import { SITE, addressLine } from './site.mjs';
-import { contactCard } from './components.mjs';
+import { contactCard, usesTurnstile } from './components.mjs';
 
 const isCurrent = (href, path) => href === path;
 
@@ -111,6 +111,7 @@ ${body}
 ${footer(groups, page.path)}
 <a class="btn call-now" href="${SITE.phoneHref}" aria-label="Call now: ${SITE.phone}">${icon('phone')}Call Now</a>
 <script src="${assets.js}" defer></script>
+${usesTurnstile(body) ? '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>' : ''}
 </body>
 </html>
 `;

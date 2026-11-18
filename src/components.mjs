@@ -126,8 +126,14 @@ export function chips(links) {
 }
 
 // ---------- contact form ----------
+// Contact / quote form. Posts to the Cloudflare function in functions/api/quote.js.
+// TURNSTILE_SITE_KEY (a Cloudflare Pages build variable) turns on the Turnstile spam check.
+const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '';
+export const usesTurnstile = (html) => Boolean(TURNSTILE_SITE_KEY) && html.includes('data-form');
+
 export function form(id = 'contact-form') {
-  return `<form class="form" id="${id}" data-form action="#" method="post" enctype="multipart/form-data">
+  return `<form class="form" id="${id}" data-form action="/api/quote" method="post" enctype="multipart/form-data">
+  <div class="form__trap" aria-hidden="true"><label for="${id}-website">Website</label><input id="${id}-website" name="website" tabindex="-1" autocomplete="off"></div>
   <div class="field field--half"><label class="req" for="${id}-first">First</label><input id="${id}-first" name="first_name" placeholder="First" autocomplete="given-name" required></div>
   <div class="field field--half"><label class="req" for="${id}-last">Last</label><input id="${id}-last" name="last_name" placeholder="Last" autocomplete="family-name" required></div>
   <div class="field"><label for="${id}-title">Job Title</label><input id="${id}-title" name="job_title" placeholder="Job Title" autocomplete="organization-title"></div>
@@ -136,7 +142,8 @@ export function form(id = 'contact-form') {
   <div class="field field--half"><label for="${id}-type">Type</label><select id="${id}-type" name="phone_type"><option>Cell</option><option>Office</option></select></div>
   <div class="field"><label class="req" for="${id}-rush">Is your project a rush?</label><select id="${id}-rush" name="rush" required><option>Yes</option><option>No</option></select></div>
   <div class="field"><label for="${id}-details">Project Details</label><textarea id="${id}-details" name="details" rows="4" placeholder="Details Here..."></textarea></div>
-  <div class="field field--80"><label for="${id}-files">Blueprint/Part/Model Drawings (Not Required)</label><input id="${id}-files" name="drawings" type="file" multiple></div>
+  <div class="field field--80"><label for="${id}-files">Blueprint/Part/Model Drawings (Not Required)</label><input id="${id}-files" name="drawings" type="file" multiple aria-describedby="${id}-files-hint"><small class="field__hint" id="${id}-files-hint">Up to 10 files, 15 MB total.</small></div>
+  ${TURNSTILE_SITE_KEY ? `<div class="field cf-turnstile" data-sitekey="${TURNSTILE_SITE_KEY}"></div>` : ''}
   <button class="btn form__submit" type="submit">Send</button>
 </form>`;
 }

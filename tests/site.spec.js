@@ -116,21 +116,54 @@ test('phone numbers and call buttons all use 1-989-600-9030', async ({ page }, t
   }
 });
 
-test('quote form checks required fields and does not submit anywhere yet', async ({ page }) => {
+test('quote form validates, sends to /api/quote, and shows the result', async ({ page }) => {
   const posts = [];
-  page.on('request', (r) => { if (r.method() === 'POST') posts.push(r.url()); });
+  let reply = { status: 200, body: { ok: true } };
+  await page.route('**/api/quote', async (route) => {
+    posts.push(route.request().postData() || '');
+    await route.fulfill({ status: reply.status, contentType: 'application/json', body: JSON.stringify(reply.body) });
+  });
   await page.goto('/request-a-quote/');
   const form = page.locator('form[data-form]');
   const submit = form.locator('button[type="submit"]');
   await submit.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await submit.click();
   expect(await form.locator('[name="first_name"]').evaluate((el) => el.validity.valueMissing)).toBe(true);
+  expect(posts).toEqual([]);
+
+  const fill = async () => {
+    await form.locator('[name="first_name"]').fill('Test');
+    await form.locator('[name="last_name"]').fill('User');
+    await form.locator('[name="email"]').fill('test@example.com');
+    await form.locator('[name="phone"]').fill('555-555-5555');
+  };
+  await fill();
+  await form.locator('input[type="file"]').setInputFiles({ name: 'part.pdf', mimeType: 'application/pdf', buffer: Buffer.from('drawing') });
+  await submit.click();
+  await expect(form.locator('.form__message')).toContainText('Thanks, Test! Your request was sent.');
+  expect(posts).toHaveLength(1);
+  for (const value of ['name="first_name"', 'Test', 'test@example.com', 'filename="part.pdf"', 'name="page"', '/request-a-quote/']) expect(posts[0]).toContain(value);
+  await expect(form.locator('[name="first_name"]')).toHaveValue('');
+
+  reply = { status: 502, body: { ok: false, error: 'Your request couldn’t be sent. Please call us at 1-989-600-9030 or try again.' } };
+  await fill();
+  await submit.click();
+  await expect(form.locator('.form__message')).toContainText('call us at 1-989-600-9030');
+  await expect(submit).toBeEnabled();
+});
+
+test('oversized attachments are stopped before upload', async ({ page }) => {
+  const posts = [];
+  await page.route('**/api/quote', (route) => { posts.push(1); route.abort(); });
+  await page.goto('/contact/');
+  const form = page.locator('form[data-form]');
   await form.locator('[name="first_name"]').fill('Test');
   await form.locator('[name="last_name"]').fill('User');
   await form.locator('[name="email"]').fill('test@example.com');
   await form.locator('[name="phone"]').fill('555-555-5555');
-  await submit.click();
-  await expect(form.locator('.form__message')).toContainText('not available yet');
+  await form.locator('input[type="file"]').setInputFiles({ name: 'big.step', mimeType: 'application/octet-stream', buffer: Buffer.alloc(16 * 1024 * 1024) });
+  await form.locator('button[type="submit"]').evaluate((b) => b.click());
+  await expect(form.locator('.form__message')).toContainText('15 MB');
   expect(posts).toEqual([]);
 });
 

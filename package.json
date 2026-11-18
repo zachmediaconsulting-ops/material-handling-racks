@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "npm run build && node scripts/serve.mjs",
-    "test": "npm run build && playwright test",
+    "test": "npm run build && node --test tests/quote-function.test.mjs && playwright test",
     "perf": "node scripts/perf.mjs",
     "images": "node scripts/optimize-images.mjs"
   },
