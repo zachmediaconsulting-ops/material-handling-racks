@@ -3,11 +3,17 @@ document.documentElement.classList.add('js');
 
 // Open every new page at the top. (Back/forward keeps the browser's remembered position,
 // and links to a section such as #Contact still jump there.) scrollIntoView also scrolls an
-// embedding frame, such as a preview viewer, back to the top.
+// embedding frame, such as a preview viewer, back to the top. It runs again once the page has
+// loaded, because a viewer may resize its frame after the new page appears.
 const navEntry = performance.getEntriesByType?.('navigation')[0];
 if (!location.hash && navEntry?.type !== 'back_forward') {
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  document.documentElement.scrollIntoView({ block: 'start', behavior: 'instant' });
+  const toTop = () => {
+    window.scrollTo(0, 0);
+    try { document.documentElement.scrollIntoView({ block: 'start', behavior: 'instant' }); } catch { document.documentElement.scrollIntoView(true); }
+  };
+  toTop();
+  requestAnimationFrame(toTop);
+  window.addEventListener('load', () => { toTop(); setTimeout(toTop, 300); }, { once: true });
 }
 
 // ---- Mobile menu: hamburger opens the panel; arrows open each section ----
