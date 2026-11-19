@@ -73,7 +73,7 @@ export function layout({ page, body, groups, assets, jsonLd = [] }) {
 <title>${esc(page.title)}</title>
 <meta name="description" content="${esc(page.description)}">
 <meta name="robots" content="${robots}">
-<link rel="canonical" href="${canonical}">
+${page.noCanonical ? '' : `<link rel="canonical" href="${canonical}">`}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${esc(SITE.name)}">
 <meta property="og:title" content="${esc(page.title)}">

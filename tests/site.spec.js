@@ -187,3 +187,10 @@ test('a new page opens at the top after following a link from the bottom of a pa
   await expect(page).toHaveURL(/\/carts\/tugger-carts\/$/);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
+
+test('unknown addresses show the Page Not Found page', async ({ page }) => {
+  await page.goto('/404.html');
+  await expect(page.locator('h1')).toHaveText('Page Not Found');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  await expect(page.locator('.hero a[href="/request-a-quote/"]')).toBeVisible();
+});

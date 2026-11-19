@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 import { SITE } from '../src/site.mjs';
 import { layout, organizationLd, breadcrumbLd } from '../src/layout.mjs';
-import { form } from '../src/components.mjs';
+import { form, hero, linkCards } from '../src/components.mjs';
 import * as templates from '../src/templates.mjs';
 import * as home from '../src/pages/home.mjs';
 import * as rackRepair from '../src/pages/rack-repair.mjs';
@@ -81,6 +81,18 @@ for (const page of all) {
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, html);
   report.push({ page, html });
+}
+
+// ---- Page Not Found (served by Cloudflare Pages with a 404 status for unknown URLs) ----
+{
+  const page = { path: '/', label: 'Page Not Found', title: 'Page Not Found | Rivers Industrial Racks', description: 'The page you were looking for doesn’t exist or has moved.', noindex: true, noCanonical: true };
+  const c = ctx(page);
+  const body = [
+    hero({ kicker: 'That page doesn’t exist or has moved.', title: 'Page Not Found', slides: ['welding'],
+      buttons: [{ text: 'Go to Home', href: '/' }, { text: 'Request a Quote', href: '/request-a-quote/' }] }),
+    linkCards({ heading: 'Find What You Need', pages: ['/racks/', '/carts/', '/fabrication/', '/capabilities/', '/industries/', '/contact/'].map(c.cardFor), gray: false }),
+  ].join('\n');
+  writeFileSync(join(dist, '404.html'), layout({ page: { ...page, path: '/404' }, body: body + '\n' + templates.quoteBandHtml(), groups, assets, jsonLd: [organizationLd()] }));
 }
 
 // ---- sitemap, robots, redirects ----
