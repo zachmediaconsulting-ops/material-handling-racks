@@ -103,6 +103,24 @@ ${indexable.map(({ page }) => `  <url><loc>${SITE.url}${page.path}</loc></url>`)
 </urlset>
 `);
 writeFileSync(join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+// llms.txt: a plain-text guide for AI assistants and crawlers (https://llmstxt.org), built from the same page data.
+{
+  const a = SITE.address;
+  const sections = [['Racks', '/racks/'], ['Carts', '/carts/'], ['Fabrication', '/fabrication/'], ['Capabilities', '/capabilities/'], ['Industries', '/industries/']];
+  const line = ({ page }) => `- [${page.title}](${SITE.url}${page.path})${page.description ? `: ${page.description}` : ''}`;
+  const used = new Set();
+  const take = (test) => indexable.filter((r) => !used.has(r.page.path) && test(r)).sort((x, y) => x.page.path.localeCompare(y.page.path)).map((r) => { used.add(r.page.path); return line(r); });
+  const out = [
+    `# ${SITE.name} (${SITE.legalName})`, '',
+    `> ${SITE.tagline}. ${SITE.summary}`, '',
+    `- Phone: ${SITE.phone} (${SITE.hours})`,
+    `- Address: ${a.street}, ${a.city}, ${a.region} ${a.postal}`,
+    `- Request a quote: ${SITE.url}/request-a-quote/`, '',
+  ];
+  for (const [name, prefix] of sections) out.push(`## ${name}`, '', ...take(({ page }) => page.path.startsWith(prefix)), '');
+  out.push('## Company and other pages', '', ...take(() => true), '');
+  writeFileSync(join(dist, 'llms.txt'), out.join('\n'));
+}
 const redirects = JSON.parse(readFileSync(join(root, 'src/redirects.json'), 'utf8'));
 writeFileSync(join(dist, '_redirects'), Object.entries(redirects).map(([from, to]) => `${from} ${to} 301`).join('\n') + '\n');
 
